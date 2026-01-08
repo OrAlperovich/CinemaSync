@@ -1,1 +1,1 @@
-Starting working on this porject by myself right now.
+Started working on this porject by myself right now.
