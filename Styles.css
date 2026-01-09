@@ -1,0 +1,7 @@
+.nav-active {
+    color: #008eb0;
+    font-weight: bold;
+    border-bottom: 3px solid #008eb0;
+}
+/* This class is to make sure that the user knows which page he is on.
+ the correct page is colored blue. */
