@@ -5,3 +5,40 @@
 }
 /* This class is to make sure that the user knows which page he is on.
  the correct page is colored blue. */
+
+
+/* ####################################################################
+   Taking care of @Media scales per device.
+#################################################################### 
+*/
+
+/*iphone and smaller devices first*/
+
+.logo-img {
+    width: 150px;
+}
+
+/*Tablets*/
+
+@media (min-width: 768px) {
+    .logo-img {
+        width: 200px;
+    }
+    .fs-2 {
+        font-size: 1.5rem !important;
+    }
+}
+
+/*Laptops/Desktops*/
+
+@media (min-width: 992px) {
+    .logo-img {
+        width: 250px;
+    }
+
+    header {
+        padding: 0 100px;
+    }
+    
+}
+
