@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CinemaSync</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- The link above is the connection to BOOTSTRAP servers. -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- The link above is the connection to fontAwesome, a libary of icons to use. -->
+    <link rel="stylesheet" href="styles.css" />
+    <!-- The link above is the connection to our style sheet in order to edit and use css. -->
+  </head>
+  <body class="bg-dark text-light">
+    <!-- ###################################################
+          This section is dealing with the sign in screen.
+         ###################################################  -->
+    <section id="loginScreen" class="screen active-screen text-center mt-5">
+      <div class="mb-5">
+        <div class="logo-circle mx-auto mb-3">
+          <img src="./Images/logo.jpg" alt="CinemaSync Logo" class="logo-img" />
+        </div>
+        <h1 class="fw-bold tracking-wide">
+          CINEMA<span class="text-teal">SYNC</span>
+        </h1>
+        <p class="text-muted small letter-spacing-2">OPERATIONS. OPTIMIZED.</p>
+      </div>
+
+      <div
+        class="card bg-surface border-0 p-4 mx-auto"
+        style="max-width: 350px"
+      >
+        <h4 class="text-white mb-4">Welcome Back, User!</h4>
+
+        <div id="loginError" class="alert alert-danger d-none p-2 small">
+          Invalid credentials. Try: admin / 1234
+        </div>
+
+        <div class="mb-3 text-start">
+          <label class="form-label small text-muted">Email</label>
+          <div class="input-group">
+            <span class="input-group-text bg-dark border-secondary text-muted"
+              ><i class="fa-solid fa-user"></i
+            ></span>
+            <input
+              type="email"
+              id="usernameInput"
+              class="form-control bg-dark border-secondary text-white"
+              placeholder="Type your Email here"
+            />
+          </div>
+        </div>
+
+        <div class="mb-4 text-start">
+          <label class="form-label small text-muted">Password</label>
+          <div class="input-group">
+            <span class="input-group-text bg-dark border-secondary text-muted"
+              ><i class="fa-solid fa-lock"></i
+            ></span>
+            <input
+              type="password"
+              id="passwordInput"
+              class="form-control bg-dark border-secondary text-white"
+              placeholder="Type your password here"
+            />
+          </div>
+        </div>
+
+        <button class="btn btn-teal w-100 fw-bold py-2" id="btnLoginSubmit">
+          LOG IN
+        </button>
+      </div>
+    </section>
+
+    <!-- ###################################################
+          This section is dealing with role selection for the user.
+         ###################################################  -->
+    <section id="roleScreen" class="screen d-none text-center mt-4">
+      <h4 class="text-gray-300 mb-4">Select your role</h4>
+
+      <div class="d-grid gap-3 mx-auto" style="max-width: 450px">
+        <button
+          class="btn btn-surface p-3 text-start d-flex align-items-center role-btn"
+          data-role="manager"
+        >
+          <div class="icon-box me-3 bg-teal-soft text-teal">
+            <i class="fa-solid fa-clapperboard"></i>
+          </div>
+          <div>
+            <div class="fw-bold">Branch Manager</div>
+            <small class="text-muted">Full Operations</small>
+          </div>
+          <i class="fa-solid fa-chevron-right ms-auto text-muted"></i>
+        </button>
+
+        <button
+          class="btn btn-surface p-3 text-start d-flex align-items-center role-btn"
+          data-role="regional"
+        >
+          <div class="icon-box me-3 bg-purple-soft text-purple">
+            <i class="fa-solid fa-earth-americas"></i>
+          </div>
+          <div>
+            <div class="fw-bold">Regional Manager</div>
+            <small class="text-muted">Multi-branch Oversight</small>
+          </div>
+          <i class="fa-solid fa-chevron-right ms-auto text-muted"></i>
+        </button>
+
+        <button
+          class="btn btn-surface p-3 text-start d-flex align-items-center role-btn"
+          data-role="procurement"
+        >
+          <div class="icon-box me-3 bg-blue-soft text-blue">
+            <i class="fa-solid fa-cart-shopping"></i>
+          </div>
+          <div>
+            <div class="fw-bold">Purchasing Division Employee</div>
+            <small class="text-muted">Orders & Supplies</small>
+          </div>
+          <i class="fa-solid fa-chevron-right ms-auto text-muted"></i>
+        </button>
+
+        <button
+          class="btn btn-surface p-3 text-start d-flex align-items-center role-btn"
+          data-role="content"
+        >
+          <div class="icon-box me-3 bg-green-soft text-green">
+            <i class="fa-solid fa-film"></i>
+          </div>
+          <div>
+            <div class="fw-bold">Content Specialist Employee</div>
+            <small class="text-muted">Movie Scheduling</small>
+          </div>
+          <i class="fa-solid fa-chevron-right ms-auto text-muted"></i>
+        </button>
+
+        <button
+          class="btn btn-surface p-3 text-start d-flex align-items-center role-btn"
+          data-role="staff"
+        >
+          <div class="icon-box me-3 bg-gray-soft text-muted">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <div>
+            <div class="fw-bold">Cinema Staff Employee</div>
+            <small class="text-muted">Shift-Based</small>
+          </div>
+          <i class="fa-solid fa-chevron-right ms-auto text-muted"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- ###################################################
+          This section is dealing with the top part of the screen - indicating what branch were in
+         ###################################################  -->
+
+    <nav
+      id="appHeader"
+      class="navbar navbar-dark bg-dark-surface border-bottom border-secondary d-none sticky-top"
+    >
+      <div
+        class="container-fluid d-flex justify-content-between align-items-center"
+      >
+        <button class="btn btn-link text-light p-0" id="btnBack">
+          <i class="fa-solid fa-arrow-left fa-lg"></i>
+        </button>
+
+        <div class="text-center">
+          <h5 class="m-0 fw-bold" id="headerTitle">Dashboard</h5>
+          <small class="text-teal" id="headerBranch">Select Branch</small>
+        </div>
+
+        <button
+          class="btn btn-link text-danger p-0"
+          id="btnLogout"
+          title="Log Out"
+        >
+          <i class="fa-solid fa-power-off fa-lg"></i>
+        </button>
+      </div>
+    </nav>
+
+    <!-- ###################################################
+          This section is dealing the user after they select their role 
+         ###################################################  -->
+
+    <section id="branchScreen" class="screen d-none text-center">
+      <h4 class="mb-4">Select Branch Location</h4>
+      <div class="row g-3" id="branchList"></div>
+    </section>
+
+    <section id="scheduleBranchScreen" class="screen d-none text-center">
+      <div class="mb-4">
+        <h4 class="fw-bold mb-2">Select Cinema Location</h4>
+        <p class="text-muted small">Which branch are you scheduling for?</p>
+      </div>
+      <div class="row g-3" id="scheduleBranchList"></div>
+    </section>
+
+    <section id="dashboardScreen" class="screen d-none">
+      <h2 class="fw-bold mb-4">Dashboard</h2>
+      <div class="row g-3">
+        <div class="col-12" id="moduleInventory">
+          <div
+            class="card bg-surface border-0 h-100 module-card"
+            data-module="inventoryScreen"
+          >
+            <div class="card-body d-flex align-items-center">
+              <div class="icon-box bg-blue-soft text-blue me-3">
+                <i class="fa-solid fa-boxes-stacked"></i>
+              </div>
+              <div>
+                <h5 class="card-title fw-bold mb-1">Inventory Count</h5>
+                <p class="card-text text-muted small">Sync stock with HQ</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12" id="moduleScheduling">
+          <div
+            class="card bg-surface border-0 h-100 module-card"
+            data-module="schedulingScreen"
+          >
+            <div class="card-body d-flex align-items-center">
+              <div class="icon-box bg-purple-soft text-purple me-3">
+                <i class="fa-regular fa-calendar-days"></i>
+              </div>
+              <div>
+                <h5 class="card-title fw-bold mb-1">Movie Scheduling</h5>
+                <p class="card-text text-muted small">AI & Manual Planner</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12" id="moduleManpower">
+          <div
+            class="card bg-surface border-0 h-100 module-card"
+            data-module="manpowerScreen"
+          >
+            <div class="card-body d-flex align-items-center">
+              <div class="icon-box bg-green-soft text-green me-3">
+                <i class="fa-solid fa-users"></i>
+              </div>
+              <div>
+                <h5 class="card-title fw-bold mb-1">Manpower</h5>
+                <p class="card-text text-muted small">Staffing Optimization</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+      <!-- ###################################################
+          This section is dealing the user after they select their role 
+         ###################################################  -->
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- The link above is the connection to jqeury so we can use jqeury functions. -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- The link above is the connection to bootstrap JS so we can use Modals and Dropdowns ETC -->
+    <script src="script.js"></script>
+    <!-- The link above is the connection to our JS sheet in order to use functions, event listeners ETC -->
+  </body>
+</html>
