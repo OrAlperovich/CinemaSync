@@ -4,3 +4,5 @@ The main job was to find a right bootstrap template and than to allign the logo 
 
 I have divided the mock-up i made for the gmar project into different html pages.
 Now the main objective is to make sure they all work with each other and that all of the JS logic is working as intended.
+
+I'm going through everything in order to see that i present it the best way i can next week. reviewing every code and paragraph to understand its meaning again.
