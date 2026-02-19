@@ -18,7 +18,9 @@
     <link rel="stylesheet" href="styles.css" />
     <!-- The link above is the connection to our style sheet in order to edit and use css. -->
   </head>
-  <body class="bg-dark text-light">
+
+
+  <body class="bg-dark text-light"> <!-- Bootstrap sets the foundation theme. -->
 
     <!-- The NAV deals with the going back button -->
     <nav class="navbar navbar-dark bg-dark-surface border-bottom border-secondary sticky-top mb-4">
@@ -39,6 +41,10 @@
         </div>
     </nav>
 
+
+    <!-- ###################################################
+          Here you pick and manage the criteria for the employee selection amount. 
+         ###################################################  -->
     <section id="manpowerScreen" class="screen container mt-3">
     
     <div class="card bg-surface border-0 p-4 mb-4" id="manpowerFormCard">
@@ -116,6 +122,10 @@
         </button>
     </div>
 
+    <!-- ###################################################
+          After you run the model - it spits out the amount of workers needed by position.
+         ###################################################  -->
+
     <div id="manpowerResults" class="d-none">
         <div class="result-card text-center">
             
@@ -162,6 +172,10 @@
 
             </div>
             </div>
+
+            <!-- ###################################################
+          Here you can re-adjust and go back to the first page of criteria.
+         ###################################################  -->
         <button class="btn btn-outline-light w-100 mt-3 py-2" id="btnResetManpower">
             <i class="fa-solid fa-rotate-left me-2"></i> Adjust Criteria
         </button>

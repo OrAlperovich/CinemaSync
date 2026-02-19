@@ -18,7 +18,9 @@
     <link rel="stylesheet" href="styles.css" />
     <!-- The link above is the connection to our style sheet in order to edit and use css. -->
   </head>
-  <body class="bg-dark text-light">
+
+
+  <body class="bg-dark text-light">   <!-- Bootstrap sets the foundation theme. -->
 
     <!-- The NAV deals with the going back button -->
     <nav class="navbar navbar-dark bg-dark-surface border-bottom border-secondary sticky-top mb-4">
@@ -39,6 +41,9 @@
         </div>
     </nav>
 
+        <!-- ###################################################
+          Here the user selects the week he wants to scheduele and select Manual or AI Assited mode.
+         ###################################################  -->
     <section id="schedulingScreen" class="screen container mt-3">
     
     <div class="bg-surface p-4 rounded mb-4 picker-container">
@@ -53,7 +58,7 @@
                 </div>
                 <div class="w-100">
                     <label class="small text-muted mb-0">Select Operations Week</label>
-                    <div id="visualWeekDisplay" class="fw-bold text-white fs-5">Pick a Week...</div>
+                    <div id="visualWeekDisplay" class="fw-bold text-white fs-5"></div>
                     <div id="scheduleContextBranch" class="text-teal small text-uppercase fw-bold mt-1"></div>
                 </div>
             </div>
@@ -84,6 +89,10 @@
         </div>
     </div>
 </div>
+
+<!-- ###################################################
+          After you select the AI mode, you are moved to this "page" and can select criteria. 
+         ###################################################  -->
 
 <div id="aiWizardContainer" class="d-none mt-4">
     
@@ -159,6 +168,8 @@
     </div>
 </div>
 
+<!-- This is the message the ai sends you when the calc is complete-->
+
 <div id="aiFeedbackCard" class="alert alert-dark border-teal d-none mb-4 animate-slide-in mt-4" role="alert">
     <div class="d-flex gap-3">
         <div class="text-teal fs-1"><i class="fa-solid fa-clipboard-check"></i></div>
@@ -170,7 +181,7 @@
         <button type="button" class="btn-close btn-close-white ms-auto" id="btnHideFeedback"></button>
     </div>
 </div>
-
+<!-- This is the message while the ai is loading-->
     <div id="scheduleLoading" class="text-center py-5 d-none">
         <div class="spinner-border text-teal mb-3" role="status"></div>
         <h5>AI is optimizing schedule...</h5>
@@ -181,6 +192,9 @@
     
     <div class="schedule-workspace">
         
+        <!-- ###################################################
+          This is the movie library on the left side of the builder.
+         ###################################################  -->
         <div class="movie-library">
             <h6 class="text-muted text-uppercase small mb-3">Movie Library</h6>
             <div id="movieDraggables">
@@ -222,47 +236,9 @@
     </div>
 </div>
 
-<div class="modal fade" id="manualScheduleModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-surface border border-secondary text-white">
-            <div class="modal-header border-secondary">
-                <h5 class="modal-title fw-bold"><i class="fa-solid fa-calendar-plus text-teal me-2"></i>Add Movie Session</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="manualScheduleForm">
-                    <div class="mb-3">
-                        <label class="form-label small text-muted">Select Movie</label>
-                        <select id="inputMovieName" class="form-select bg-dark text-white border-secondary">
-                            </select>
-                    </div>
-                    <div class="row g-3">
-                        <div class="col-6">
-                            <label class="form-label small text-muted">Screen Number</label>
-                            <select id="inputScreenNum" class="form-select bg-dark text-white border-secondary">
-                                <option value="1">Screen 1 (IMAX)</option>
-                                <option value="2">Screen 2</option>
-                                <option value="3">Screen 3</option>
-                                <option value="4">Screen 4 (VIP)</option>
-                                <option value="5">Screen 5</option>
-                                <option value="6">Screen 6</option>
-                            </select>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label small text-muted">Showtime</label>
-                            <input type="time" id="inputShowtime" class="form-control bg-dark text-white border-secondary" value="19:00">
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer border-secondary">
-                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-teal fw-bold" id="btnSaveSchedule">Add to Schedule</button>
-            </div>
-        </div>
-    </div>
-</div>
-
+<!-- ###################################################
+          This is the blurred popup that comes up once you press the publish schedule button
+         ###################################################  -->
 <div class="modal fade" id="publishConfirmModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-surface border border-teal text-white shadow-lg">

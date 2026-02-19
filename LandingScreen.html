@@ -19,16 +19,18 @@
     <!-- The link above is the connection to our style sheet in order to edit and use css. -->
   </head>
 
-  <body class="bg-dark text-light">
+  <body class="bg-dark text-light"> <!-- Bootstrap sets the foundation theme. -->
 
     
     <!-- ###################################################
           This section is dealing with the sign in screen.
+          Dosent have d-none so it will be the first thing that we see.
          ###################################################  -->
-    <section id="loginScreen" class="screen active-screen text-center mt-5">
+
+    <section id="loginScreen" class="screen active-screen text-center mt-5"> <!-- mt is margin top-->
       <div class="mb-5">
         <div class="logo-circle mx-auto mb-3">
-          <img src="./Images/logo.jpg" alt="CinemaSync Logo" class="logo-img" />
+          <img src="./Images/logo.jpg" alt="CinemaSync Logo" class="logo-img" /> <!-- Our logo is uploaded here-->
         </div>
         <h1 class="fw-bold tracking-wide">
           CINEMA<span class="text-teal">SYNC</span>
@@ -43,7 +45,7 @@
         <h4 class="text-white mb-4">Welcome Back, User!</h4>
 
         <div id="loginError" class="alert alert-danger d-none p-2 small">
-          Invalid credentials. Try: admin / 1234
+        
         </div>
 
         <div class="mb-3 text-start">
@@ -83,7 +85,8 @@
     </section>
 
     <!-- ###################################################
-          This section is dealing with the top part of the screen - indicating what branch were in
+          After loggin in - you are faced with the role selection screen.
+    This section is dealing with the top part of the screen - indicating what branch were in
          ###################################################  -->
 
     <nav
@@ -194,20 +197,12 @@
     
 
     <!-- ###################################################
-          This section is dealing the user after they select their role 
+          This section is dealing with the user after they select their role 
          ###################################################  -->
 
     <section id="branchScreen" class="screen d-none text-center">
-      <h4 class="mb-4">Select Branch Location</h4>
+      <h4 class="mb-4">Select Branch</h4>
       <div class="row g-3" id="branchList"></div>
-    </section>
-
-    <section id="scheduleBranchScreen" class="screen d-none text-center">
-      <div class="mb-4">
-        <h4 class="fw-bold mb-2">Select Cinema Location</h4>
-        <p class="text-muted small">Which branch are you scheduling for?</p>
-      </div>
-      <div class="row g-3" id="scheduleBranchList"></div>
     </section>
 
     <section id="dashboardScreen" class="screen d-none">
@@ -266,7 +261,7 @@
     </section>
 
       <!-- ###################################################
-          This section is dealing the user after they select their role 
+          This section is dealing with the user after they select their role 
          ###################################################  -->
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

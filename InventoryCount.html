@@ -19,9 +19,12 @@
     <!-- The link above is the connection to our style sheet in order to edit and use css. -->
   </head>
   
-  <body class="bg-dark text-light">
+  <body class="bg-dark text-light"> <!-- Bootstrap sets the foundation theme. -->
 
-    <!-- The NAV deals with the going back button -->
+    <!-- ###################################################
+          The NAV deals with the going back button
+         ###################################################  -->
+      
     <nav class="navbar navbar-dark bg-dark-surface border-bottom border-secondary sticky-top mb-4">
         <div class="container-fluid d-flex justify-content-between align-items-center">
             
@@ -40,10 +43,13 @@
         </div>
     </nav>
 
+
+     <!-- ###################################################
+          The NAV deals with the going back button
+         ###################################################  -->
     <section id="inventoryScreen" class="screen">
       <div class="d-flex justify-content-between align-items-end mb-4">
         <h4 class="fw-bold m-0">Warehouse A</h4>
-        <span class="badge bg-teal text-dark">Active Count</span>
       </div>
 
       <div class="inventory-list d-grid gap-3" id="inventoryContainer"></div>
@@ -53,6 +59,7 @@
       </button>
     </section>
 
+    <!-- Toast the is the green pop-up message that pops saying it synched to bigpicture-->
     <div
       class="toast-container position-fixed top-0 end-0 p-3"
       style="z-index: 9999"

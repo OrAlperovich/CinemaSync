@@ -1,12 +1,17 @@
 $(document).ready(function() {
 
-    // Global Header Branch Sync
+    /****************************************************************************************
+     * GLOBAL INITIALIZATION
+     * Checks if a branch was previously selected and displays it in the top navigation bar.
+     ****************************************************************************************/
     let activeBranch = localStorage.getItem('activeBranch');
     if(activeBranch) $('#navBranchDisplay').text(activeBranch);
 
-    // ==========================================
-    // 1. DATA & CONFIGURATION
-    // ==========================================
+
+    /****************************************************************************************
+     * SECTION 1: DATA & CONFIGURATION
+     * Contains all the static arrays and objects used to populate the mockup's UI.
+     ****************************************************************************************/
 
     const BRANCHES = [
         "Kfar Saba (Oshiland)", "Rehovot", "Petah Tikva", 
@@ -45,7 +50,7 @@ $(document).ready(function() {
             { name: "Paper Straws (Bulk)", norm: 5000, supplier: "GreenEarth" },
             { name: "Plastic Lids (Universal)", norm: 2000, supplier: "PackIt" }
         ],
-        "🍬 Sweets & Snacks": [
+        "🍫 Sweets & Snacks": [
             { name: "M&Ms Peanut (Box of 24)", norm: 10, supplier: "Mars" },
             { name: "M&Ms Chocolate (Box of 24)", norm: 8, supplier: "Mars" },
             { name: "Maltesers Bags (Box of 20)", norm: 8, supplier: "Mars" },
@@ -85,35 +90,41 @@ $(document).ready(function() {
 
     const TIME_SLOTS = ["11:00", "13:30", "16:00", "18:30", "21:00", "23:30"];
 
-    // ==========================================
-    // 2. GLOBAL BUTTON LOGIC
-    // ==========================================
+
+    /****************************************************************************************
+     * SECTION 2: GLOBAL ACTIONS
+     * Behaviors that apply across the entire application, regardless of the active page.
+     ****************************************************************************************/
     
-    // LOGOUT (Works on all pages)
+    /* --------------------------------------------------------------------------
+       [ Logout Action ] - Wipes memory and returns to the Landing Screen
+        The e here means "Event"
+       -------------------------------------------------------------------------- */
     $('body').on('click', '#btnLogout, .btn-logout', function(e) {
         e.preventDefault();
         
-        // Wipe everything from memory
         localStorage.removeItem('activeBranch'); 
         localStorage.removeItem('userRole'); 
         
-        // Force the text to reset visually just in case
         $('#headerBranch').text("Select Branch");
         
         window.location.href = "LandingScreen.html"; 
     });
 
-    // ==========================================
-    // 3. PAGE SPECIFIC LOGIC
-    // ==========================================
 
-    // --- A. LANDING SCREEN LOGIC ---
+    /****************************************************************************************
+     * SECTION 3: MODULE SPECIFIC LOGIC
+     * Code blocks that only trigger if their specific HTML container exists on the page.
+     ****************************************************************************************/
+
+    /* ==========================================================================
+       MODULE A: LANDING & LOGIN SCREEN
+       ========================================================================== */
     if ($('#loginScreen').length > 0) {
         
-        // 1. SMART NAVIGATION (The Fix)
-        // We only skip login if the URL says "?return=true" AND we have a branch saved.
-        // If you just Refresh (no ?return=true), this block is skipped -> Login shows.
-        // 1. SMART NAVIGATION
+        /* --------------------------------------------------------------------------
+           [ Smart Navigation ] - Bypasses login if returning from an assignment module
+           -------------------------------------------------------------------------- */
         const urlParams = new URLSearchParams(window.location.search);
         let savedBranch = localStorage.getItem('activeBranch');
         
@@ -122,29 +133,29 @@ $(document).ready(function() {
             $('#appHeader').removeClass('d-none');
             $('#headerBranch').text(savedBranch);
             
-            // *** THE FIX: Check permissions when returning from an assignment ***
             applyRolePermissions();
             
             $('#dashboardScreen').removeClass('d-none');
         }
 
-        // 2. BACK BUTTON (The full sequence)
+        /* --------------------------------------------------------------------------
+           [ Back Button Sequence ] - Handles sequential navigation backwards
+           -------------------------------------------------------------------------- */
         $('#btnBack').click(function() {
-            // Step 1: Dashboard -> Branch Selection (Or Role Selection for HQ)
+            
+            // -> From Dashboard to Branch Selection (Skips Branch for HQ roles)
             if (!$('#dashboardScreen').hasClass('d-none')) {
                 $('#dashboardScreen').addClass('d-none');
                 
                 localStorage.removeItem('activeBranch');
                 let role = localStorage.getItem('userRole');
                 
-                // If HQ Role, skip branch screen and go straight to roles
                 if (role === 'procurement' || role === 'content') {
                     $('#headerBranch').text("Select Branch");
                     $('#roleScreen').removeClass('d-none').hide().fadeIn(300);
                     return;
                 }
                 
-                // If Regional or Branch Manager/Staff
                 if (role === 'regional') {
                     renderRegions();
                     $('#branchScreen h4').text("Select Region");
@@ -159,19 +170,18 @@ $(document).ready(function() {
                 return;
             }
             
-            // Step 2: Branch Selection -> Role Selection (This fixes the "unresponsive" bug)
+            // -> From Branch Selection to Role Selection
             if (!$('#branchScreen').hasClass('d-none')) {
                 $('#branchScreen').addClass('d-none');
                 $('#roleScreen').removeClass('d-none').hide().fadeIn(300);
                 return;
             }
 
-            // Step 3: THIS IS YOUR SEGMENT (Role Selection -> Login)
+            // -> From Role Selection to Login Screen (Clears inputs for security)
             if (!$('#roleScreen').hasClass('d-none')) {
                 $('#roleScreen').addClass('d-none');
                 $('#appHeader').addClass('d-none'); 
                 
-                // *** CLEARS THE CREDENTIALS ***
                 $("#usernameInput").val("");
                 $("#passwordInput").val("");
                 
@@ -180,24 +190,38 @@ $(document).ready(function() {
             }
         });
 
-        // 3. Login Submit
+        /* --------------------------------------------------------------------------
+           [ Login Submit Action ] - Form Validation
+            trim is used to chop off invisible spaces at the beginning and end of text.
+           -------------------------------------------------------------------------- */
         $('#btnLoginSubmit').click(function() {
             let email = $("#usernameInput").val().trim();
             let pass = $("#passwordInput").val().trim();
+            
+            // Hide the error box every time they click, before checking again
             $("#loginError").addClass("d-none");
 
-            if (pass.length < 1) {
-                $("#loginError").removeClass("d-none").text("Please enter your password");
-                return;
+            // 1. Check if email is valid (must contain an '@')
+            if (!email.includes("@")) {
+                $("#loginError").removeClass("d-none").text("Please enter a valid email address containing '@'.");
+                return; // Stops the code here so they don't log in
             }
 
-            // Success
+            // 2. Check if password is at least 8 characters
+            if (pass.length < 8) {
+                $("#loginError").removeClass("d-none").text("Your password must be at least 8 characters long.");
+                return; // Stops the code here so they don't log in
+            }
+
+            // 3. If it passes both checks above, let them in!
             $('#loginScreen').addClass('d-none');
             $('#appHeader').removeClass('d-none'); 
             $('#roleScreen').removeClass('d-none').hide().fadeIn(400);
         });
 
-        // 4. Role Selection (HQ Routing)
+        /* --------------------------------------------------------------------------
+           [ Role Selection Routing ] - Directs users based on HQ vs Branch roles
+           -------------------------------------------------------------------------- */
         $('.role-btn').click(function() {
             let role = $(this).data("role");
             localStorage.setItem('userRole', role);
@@ -215,7 +239,6 @@ $(document).ready(function() {
                 $('#branchScreen').removeClass('d-none').hide().fadeIn(400);
             } 
             else if (role === 'procurement' || role === 'content') {
-                // Skip the branch screen entirely for HQ roles
                 localStorage.setItem('activeBranch', "Holon Main Office");
                 $('#headerBranch').text("Holon Main Office"); 
                 
@@ -224,7 +247,9 @@ $(document).ready(function() {
             }
         });
 
-        // 5. Branch Selection
+        /* --------------------------------------------------------------------------
+           [ Branch Selection Action ] - Sets the location and opens Dashboard
+           -------------------------------------------------------------------------- */
         $(document).on('click', '.branch-select-btn, .region-select-btn', function() {
             let locationName = $(this).data("loc");
             localStorage.setItem('activeBranch', locationName); 
@@ -232,17 +257,22 @@ $(document).ready(function() {
             
             $('#branchScreen').addClass('d-none');
             
-            // *** THE FIX: Check permissions before showing the Dashboard ***
             applyRolePermissions(); 
             
             $('#dashboardScreen').removeClass('d-none').hide().fadeIn(400);
         });
     }
 
-    // --- B. INVENTORY PAGE LOGIC ---
+    /* ==========================================================================
+       MODULE B: INVENTORY COUNT PAGE
+       ========================================================================== */
     if ($('#inventoryContainer').length > 0) {
+        
         renderInventory(); 
         
+        /* --------------------------------------------------------------------------
+           [ Variance (Diff) Calculator ] - Live updates as users type stock counts
+           -------------------------------------------------------------------------- */
         $(document).on("input", ".input-stock", function() {
             let inputVal = $(this).val();
             let norm = $(this).parent().prev().prev().find("span").text();
@@ -253,6 +283,9 @@ $(document).ready(function() {
             else displayObj.removeClass("text-danger").addClass("text-success");
         });
 
+        /* --------------------------------------------------------------------------
+           [ Sync Data Action ] - Triggers the success toast notification
+           -------------------------------------------------------------------------- */
         $("#btnSync").click(function() {
             let toastEl = document.getElementById('liveToast');
             let toast = new bootstrap.Toast(toastEl);
@@ -260,61 +293,56 @@ $(document).ready(function() {
         });
     }
 
-    // --- C. SCHEDULING PAGE LOGIC ---
+    /* ==========================================================================
+       MODULE C: MOVIE SCHEDULING PAGE
+       ========================================================================== */
     if ($('#scheduleWeekInput').length > 0) {
         let savedBranch = localStorage.getItem('activeBranch');
         if(savedBranch) $(".d-flex h4").text("Scheduling: " + savedBranch);
         initWeekPicker();
 
-        // 0. Safely Close AI Feedback (Hides it instead of deleting it)
+        /* --------------------------------------------------------------------------
+           [ Alert UI Management ] - Hides the AI feedback safely without deleting it
+           -------------------------------------------------------------------------- */
         $("#btnHideFeedback").click(function() {
             $("#aiFeedbackCard").addClass("d-none");
         });
         
-        // 1. Enter Manual Mode (Locks Picker)
+        /* --------------------------------------------------------------------------
+           [ UI Modes ] - Switching between AI Parameters and Manual Drag & Drop
+           -------------------------------------------------------------------------- */
         $("#btnManualSchedule").click(function() {
             $("#scheduleModeSelection").addClass("d-none");
             $("#scheduleResults").removeClass("d-none");
-            
-            // Lock the Date Picker
             $(".picker-container").css({"pointer-events": "none", "opacity": "0.6"});
-            
             initDragAndDrop();
         });
 
-        // 2. Exit Builder (Unlocks Picker & Clears AI Message)
         $("#btnExitBuilder").click(function() {
             $("#scheduleResults").addClass("d-none");
             $("#scheduleModeSelection").removeClass("d-none");
-            
-            // Unlock the Date Picker
             $(".picker-container").css({"pointer-events": "auto", "opacity": "1"});
-            
-            // *** THE FIX: Hide the AI Feedback card so it resets ***
             $("#aiFeedbackCard").addClass("d-none");
         });
 
-        // 3. Enter AI Wizard (Locks Picker)
         $("#btnAISchedule").click(function() {
             $("#scheduleModeSelection").addClass("d-none");
             $("#aiWizardContainer").removeClass("d-none");
-            
-            // Lock the Date Picker
             $(".picker-container").css({"pointer-events": "none", "opacity": "0.6"});
         });
 
-        // 4. Cancel AI Wizard (Unlocks Picker)
         $("#btnCancelAI").click(function() {
             $("#aiWizardContainer").addClass("d-none");
             $("#scheduleModeSelection").removeClass("d-none");
-            
-            // Unlock the Date Picker
             $(".picker-container").css({"pointer-events": "auto", "opacity": "1"});
         });
 
-        // 5. Run AI (Using Your Custom Checkboxes)
+        /* --------------------------------------------------------------------------
+           [ AI Generation Execution ] - Reads parameters and builds the schedule
+           -------------------------------------------------------------------------- */
         $("#btnRunAI").click(function() {
-            // Read all 8 checkboxes from your UI
+            
+            // -> Reads user configuration from UI checkboxes
             let aiParams = {
                 blockbuster: $("#aiOpt1").is(":checked"),
                 occupancy:   $("#aiOpt2").is(":checked"),
@@ -327,16 +355,16 @@ $(document).ready(function() {
             $("#aiWizardContainer").addClass("d-none");
             $("#scheduleLoading").removeClass("d-none");
             
+            // -> Simulates processing delay before rendering results
             setTimeout(function() {
                 $("#scheduleLoading").addClass("d-none");
                 $("#scheduleResults").removeClass("d-none");
                 initDragAndDrop();
                 
-                // Pass your specific parameters into the auto-filler
                 autoFillSchedule(aiParams);
                 
-                // Calculate Dynamic Efficiency & Message
-                let efficiency = 75 + Math.floor(Math.random() * 5); // Base 75-79
+                // -> Calculate dynamic efficiency score based on selected goals
+                let efficiency = 75 + Math.floor(Math.random() * 5); 
                 let appliedCount = 0;
                 let msgs = [];
 
@@ -347,31 +375,28 @@ $(document).ready(function() {
                 if (aiParams.weekend)     { efficiency += 5; appliedCount++; msgs.push("Weekends"); }
                 if (aiParams.variety)     { efficiency += 2; appliedCount++; msgs.push("Variety"); }
 
-                // Cap efficiency at 99
                 if (efficiency > 99) efficiency = 99;
 
                 let summaryText = appliedCount > 0 
                     ? `Optimized for: ${msgs.join(", ")}.` 
                     : "Standard Balanced Schedule applied.";
 
-                // Inject Dynamic Results
                 $("#aiFeedbackCard").removeClass("d-none");
                 $("#aiFeedbackText").html(`${summaryText} Efficiency: <span class='text-teal fw-bold'>${efficiency}/100</span>`);
             }, 2000);
         });
 
-        // 6. Publish Schedule 
+        /* --------------------------------------------------------------------------
+           [ Publish Workflow ] - Modal and Toast triggers for finalizing schedules
+           -------------------------------------------------------------------------- */
         $("#btnPublishSchedule").click(function() {
-            // Grab the week text from the top of the screen
             let currentWeekText = $("#visualWeekDisplay").text();
-            // Inject it into the modal
             $("#publishWeekTarget").text(currentWeekText);
             
             let myModal = new bootstrap.Modal(document.getElementById('publishConfirmModal'));
             myModal.show();
         });
 
-        // 7. Confirm Publish
         $("#btnConfirmPublish").click(function() {
             $("#publishConfirmModal").modal('hide');
             let toastEl = document.getElementById('liveToast');
@@ -380,23 +405,28 @@ $(document).ready(function() {
         });
     }
 
-    // --- D. MANPOWER PAGE LOGIC ---
+    /* ==========================================================================
+       MODULE D: MANPOWER OPTIMIZATION PAGE
+       ========================================================================== */
     if ($('#manpowerFormCard').length > 0) {
         
-        // 1. Keeps the slider text updating
+        /* --------------------------------------------------------------------------
+           [ Live UI Binding ] - Updates the percentage label for pre-sales
+           -------------------------------------------------------------------------- */
         $("#optPreSales").on("input", function() {
             $("#sliderValue").text($(this).val() + "%");
         });
 
-        // 2. The NEW, actual calculation logic
+        /* --------------------------------------------------------------------------
+           [ Calculation Engine ] - Weights inputs to determine staffing requirements
+           -------------------------------------------------------------------------- */
         $("#btnCalcManpower").click(function() {
             let btn = $(this);
             let originalText = btn.html();
             btn.html('<i class="fa-solid fa-circle-notch fa-spin"></i> Processing Model...');
             btn.prop('disabled', true); 
 
-            // Gather Data (Score Logic)
-            let totalScore = 3; // Start with 3 employees minimum
+            let totalScore = 3; 
             
             let day = $("#optDayType").val();
             let shift = $("#optShift").val();
@@ -406,7 +436,7 @@ $(document).ready(function() {
             let isPremiere = $("#optPremiere").is(":checked");
             let preSales = parseInt($("#optPreSales").val());
 
-            // Logic Engine (Increase totalScore based on criteria)
+            // -> Mathematical weights based on environmental factors
             if (day === "weekend") totalScore += 3;
             if (shift === "afternoon") totalScore += 1;
             if (shift === "night") totalScore += 2;
@@ -419,44 +449,42 @@ $(document).ready(function() {
             if (preSales > 60) totalScore += 2;
             if (preSales > 80) totalScore += 2;
 
-            // Distribute Roles
+            // -> Distribute staff count across specific job roles
             let screening = 1;
-            if (totalScore > 15) screening = 2; // Add a 2nd projectionist if huge shift
+            if (totalScore > 15) screening = 2; 
 
             let remainder = totalScore - screening;
             
-            let snacks = Math.ceil(remainder * 0.5);   // 50%
-            let cleaners = Math.floor(remainder * 0.3); // 30%
+            let snacks = Math.ceil(remainder * 0.5);   
+            let cleaners = Math.floor(remainder * 0.3); 
             
-            // Cashiers get whatever is left, ensure at least 1 if remainder exists
             let cashiers = remainder - snacks - cleaners; 
             if (cashiers < 1 && remainder > 0) {
                 cashiers = 1;
                 if (snacks > 1) snacks--;
             }
 
-            // Reveal Results
+            // -> Transition UI to display results
             setTimeout(() => {
                 $("#manpowerFormCard").fadeOut(300, function() {
                     
-                    // Inject calculated numbers
                     $("#resultStaffCount").text(totalScore);
                     $("#resSnacks").text(snacks);
                     $("#resCleaners").text(cleaners);
                     $("#resCashiers").text(cashiers);
                     $("#resScreening").text(screening);
 
-                    // Show Results
                     $("#manpowerResults").removeClass("d-none").hide().fadeIn(400);
                     
-                    // Reset Button
                     btn.html(originalText);
                     btn.prop('disabled', false);
                 });
             }, 1000);
         });
 
-        // 3. Keeps the reset button working
+        /* --------------------------------------------------------------------------
+           [ Reset UI ] - Clears results and returns to the parameter form
+           -------------------------------------------------------------------------- */
         $("#btnResetManpower").click(function() {
             $("#manpowerResults").fadeOut(300, function() {
                 $("#manpowerFormCard").fadeIn(400);
@@ -464,9 +492,11 @@ $(document).ready(function() {
         });
     }
 
-    // ==========================================
-    // 4. HELPER FUNCTIONS
-    // ==========================================
+    /****************************************************************************************
+     * SECTION 4: HELPER FUNCTIONS
+     * Reusable logic responsible for generating HTML structures and calculations.
+     ****************************************************************************************/
+
     function renderBranches() {
         $("#branchList").empty().removeClass("d-grid gap-3 mx-auto").addClass("row g-3").css("max-width", "");
         BRANCHES.forEach(branch => {
@@ -479,6 +509,7 @@ $(document).ready(function() {
             `);
         });
     }
+    
     function renderRegions() {
         $("#branchList").empty().removeClass("row g-3").addClass("d-grid gap-3 mx-auto").css("max-width", "400px");
         REGIONS.forEach(region => {
@@ -489,6 +520,7 @@ $(document).ready(function() {
             `);
         });
     }
+    
     function renderInventory() {
         $("#inventoryContainer").empty();
         for (const [category, items] of Object.entries(INVENTORY_DATA)) {
@@ -524,6 +556,7 @@ $(document).ready(function() {
             });
         }
     }
+    
     function initDragAndDrop() {
         const library = $("#movieDraggables");
         library.empty();
@@ -539,6 +572,7 @@ $(document).ready(function() {
         });
         buildScheduleGrid();
     }
+    
     function buildScheduleGrid() {
         const headerRow = $("#gridHeaderRow");
         const body = $("#gridBody");
@@ -546,7 +580,6 @@ $(document).ready(function() {
         body.empty();
 
         let weekVal = $("#scheduleWeekInput").val(); 
-        // FIX: Now gets Monday instead of Tuesday
         let startDate = getMondayDate(weekVal); 
 
         for (let i = 0; i < 8; i++) {
@@ -584,7 +617,6 @@ $(document).ready(function() {
         });
     }
 
-    // FIX: Renamed and removed the +1 day shift so it stays on Monday
     function getMondayDate(weekVal) {
         let date = new Date(); 
         if (weekVal) {
@@ -599,60 +631,50 @@ $(document).ready(function() {
     }
 
     function autoFillSchedule(params) {
-        // Categorize the Database
         const blockbusters = ["Avatar 2", "Dune 2", "Deadpool 3", "Spider-Man"];
         const family = ["Barbie", "Inside Out 2", "Spider-Man", "Avatar 2"];
         const adults = ["Oppenheimer", "Joker 2", "Gladiator 2", "The Batman 2", "Mission Impossible 8", "Top Gun 3"];
         
-        // Base probability of a slot being filled
-        let baseProb = params.gaps ? 0.85 : 0.50; // "Minimize Gaps" forces a dense schedule
+        let baseProb = params.gaps ? 0.85 : 0.50; 
 
         $(".drop-zone").each(function() {
             $(this).empty();
-            let time = $(this).data("time"); // e.g., "11:00", "21:00"
-            let dayIndex = $(this).data("day"); // 0 to 7 (Assuming 4 and 5 fall on Fri/Sat)
+            let time = $(this).data("time"); 
+            let dayIndex = $(this).data("day"); 
             
             let localProb = baseProb;
-            let currentPool = [...MOVIE_DB]; // Default to all movies
+            let currentPool = [...MOVIE_DB]; 
 
-            // Apply "Maximize Peak-Hour Occupancy"
             if (params.occupancy && (time === "18:30" || time === "21:00")) {
                 localProb += 0.30;
             }
 
-            // Apply "Ensure Full Weekend Coverage" (Boost probability to near 100% on weekends)
             if (params.weekend && (dayIndex === 4 || dayIndex === 5 || dayIndex === 6)) {
                 localProb += 0.40;
             }
 
-            // Apply "Optimize for Family" (Boost mornings, cut late nights, change movie pool)
             if (params.family) {
                 if (time === "11:00" || time === "13:30") localProb += 0.30;
                 if (time === "21:00" || time === "23:30") localProb -= 0.40;
                 
-                // If it's morning/afternoon, prioritize family movies
                 if (time === "11:00" || time === "13:30" || time === "16:00") {
                     currentPool = family;
                 }
             }
 
-            // Apply "Prioritize Global Blockbusters" (Overwrite pool with blockbusters for peak times)
             if (params.blockbuster && !params.variety) {
                 if (time === "18:30" || time === "21:00" || time === "23:30") {
                     currentPool = blockbusters;
                 }
             }
 
-            // Apply "Variety" (Force mixed pool)
             if (params.variety) {
                 currentPool = [...MOVIE_DB];
             }
 
-            // Final safety caps for probability
             if (localProb > 0.95) localProb = 0.95;
             if (localProb < 0.05) localProb = 0.05;
 
-            // Roll the dice to place a movie
             if(Math.random() < localProb) { 
                 let randomMovie = currentPool[Math.floor(Math.random() * currentPool.length)];
                 let eventChip = $(`
@@ -703,11 +725,9 @@ $(document).ready(function() {
             let simple = new Date(year, 0, 4); 
             let dayShift = (simple.getDay() || 7) - 1; 
             
-            // FIX: Keep it exactly on the ISO Monday
             let isoMonday = new Date(year, 0, 4 - dayShift + (week - 1) * 7);
             let mondayStart = new Date(isoMonday);
             
-            // End date is exactly 7 days later (Next Monday)
             let mondayEnd = new Date(mondayStart);
             mondayEnd.setDate(mondayStart.getDate() + 7);
             
@@ -727,21 +747,19 @@ $(document).ready(function() {
         }
     }
 
-    // ==========================================
-    // 5. ROLE PERMISSIONS
-    // ==========================================
+    /****************************************************************************************
+     * SECTION 5: ROLE PERMISSIONS
+     * Manages module visibility on the Dashboard based on the user's specific job role.
+     ****************************************************************************************/
     function applyRolePermissions() {
         let role = localStorage.getItem('userRole');
         
-        // 1. Strip away Bootstrap's hidden class entirely so jQuery can take full control
         $('#moduleInventory, #moduleScheduling, #moduleManpower').removeClass('d-none');
         
-        // 2. Force hide EVERYTHING first using strict jQuery
         $('#moduleInventory').hide();
         $('#moduleScheduling').hide();
         $('#moduleManpower').hide();
         
-        // 3. Reveal exactly what they need based on your rules
         if (role === 'manager' || role === 'regional') {
             $('#moduleInventory').show();
             $('#moduleManpower').show();
@@ -754,4 +772,4 @@ $(document).ready(function() {
         }
     }
 
-}); // END OF DOCUMENT READY
+}); // END OF DOCUMENT 
