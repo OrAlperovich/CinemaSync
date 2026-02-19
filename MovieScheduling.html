@@ -20,6 +20,24 @@
   </head>
   <body class="bg-dark text-light">
 
+    <!-- The NAV deals with the going back button -->
+    <nav class="navbar navbar-dark bg-dark-surface border-bottom border-secondary sticky-top mb-4">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            
+            <a href="LandingScreen.html?return=true" class="btn btn-link text-light p-0">
+                <i class="fa-solid fa-arrow-left fa-lg"></i>
+            </a>
+            
+            <div class="text-center">
+                <h5 class="m-0 fw-bold">CinemaSync</h5>
+            </div>
+            
+            <a href="#" class="btn btn-link text-danger p-0 btn-logout" title="Log Out">
+                <i class="fa-solid fa-power-off fa-lg"></i>
+            </a>
+        </div>
+    </nav>
+
     <section id="schedulingScreen" class="screen container mt-3">
     
     <div class="bg-surface p-4 rounded mb-4 picker-container">
@@ -40,7 +58,7 @@
             </div>
 
             <div class="text-md-end text-start w-100 ps-md-4 border-start-md border-secondary">
-                <small class="text-muted d-block mb-1">Operational Cycle (Tue-Tue)</small>
+                <small class="text-muted d-block mb-1">Operational Cycle (Mon-Mon)</small>
                 <span id="weekDateDisplay" class="text-teal fw-bold fs-4">--</span>
             </div>
 
@@ -148,7 +166,7 @@
             <p class="text-muted mb-0" id="aiFeedbackText">
                 </p>
         </div>
-        <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="alert"></button>
+        <button type="button" class="btn-close btn-close-white ms-auto" id="btnHideFeedback"></button>
     </div>
 </div>
 
