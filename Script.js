@@ -1,5 +1,9 @@
 $(document).ready(function() {
 
+    // Global Header Branch Sync
+    let activeBranch = localStorage.getItem('activeBranch');
+    if(activeBranch) $('#navBranchDisplay').text(activeBranch);
+
     // ==========================================
     // 1. DATA & CONFIGURATION
     // ==========================================
@@ -88,8 +92,14 @@ $(document).ready(function() {
     // LOGOUT (Works on all pages)
     $('body').on('click', '#btnLogout, .btn-logout', function(e) {
         e.preventDefault();
-        localStorage.removeItem('activeBranch'); // Clear memory
-        // When we go back to LandingScreen without "?return=true", it will show Login
+        
+        // Wipe everything from memory
+        localStorage.removeItem('activeBranch'); 
+        localStorage.removeItem('userRole'); 
+        
+        // Force the text to reset visually just in case
+        $('#headerBranch').text("Select Branch");
+        
         window.location.href = "LandingScreen.html"; 
     });
 
@@ -103,6 +113,7 @@ $(document).ready(function() {
         // 1. SMART NAVIGATION (The Fix)
         // We only skip login if the URL says "?return=true" AND we have a branch saved.
         // If you just Refresh (no ?return=true), this block is skipped -> Login shows.
+        // 1. SMART NAVIGATION
         const urlParams = new URLSearchParams(window.location.search);
         let savedBranch = localStorage.getItem('activeBranch');
         
@@ -110,21 +121,52 @@ $(document).ready(function() {
             $('#loginScreen').addClass('d-none');
             $('#appHeader').removeClass('d-none');
             $('#headerBranch').text(savedBranch);
+            
+            // *** THE FIX: Check permissions when returning from an assignment ***
+            applyRolePermissions();
+            
             $('#dashboardScreen').removeClass('d-none');
         }
 
-        // 2. BACK BUTTON (White Arrow on Landing Page)
+        // 2. BACK BUTTON (The full sequence)
         $('#btnBack').click(function() {
+            // Step 1: Dashboard -> Branch Selection (Or Role Selection for HQ)
             if (!$('#dashboardScreen').hasClass('d-none')) {
                 $('#dashboardScreen').addClass('d-none');
+                
+                localStorage.removeItem('activeBranch');
+                let role = localStorage.getItem('userRole');
+                
+                // If HQ Role, skip branch screen and go straight to roles
+                if (role === 'procurement' || role === 'content') {
+                    $('#headerBranch').text("Select Branch");
+                    $('#roleScreen').removeClass('d-none').hide().fadeIn(300);
+                    return;
+                }
+                
+                // If Regional or Branch Manager/Staff
+                if (role === 'regional') {
+                    renderRegions();
+                    $('#branchScreen h4').text("Select Region");
+                    $('#headerBranch').text("Select Region"); 
+                } else {
+                    renderBranches();
+                    $('#branchScreen h4').text("Select Branch");
+                    $('#headerBranch').text("Select Branch"); 
+                }
+                
                 $('#branchScreen').removeClass('d-none').hide().fadeIn(300);
                 return;
             }
+            
+            // Step 2: Branch Selection -> Role Selection (This fixes the "unresponsive" bug)
             if (!$('#branchScreen').hasClass('d-none')) {
                 $('#branchScreen').addClass('d-none');
                 $('#roleScreen').removeClass('d-none').hide().fadeIn(300);
                 return;
             }
+
+            // Step 3: THIS IS YOUR SEGMENT (Role Selection -> Login)
             if (!$('#roleScreen').hasClass('d-none')) {
                 $('#roleScreen').addClass('d-none');
                 $('#appHeader').addClass('d-none'); 
@@ -155,24 +197,29 @@ $(document).ready(function() {
             $('#roleScreen').removeClass('d-none').hide().fadeIn(400);
         });
 
-        // 4. Role Selection
+        // 4. Role Selection (HQ Routing)
         $('.role-btn').click(function() {
             let role = $(this).data("role");
+            localStorage.setItem('userRole', role);
+            
             $('#roleScreen').addClass('d-none');
             
-            if(role === 'regional') {
+            if (role === 'regional') {
                 renderRegions();
                 $('#branchScreen h4').text("Select Region");
                 $('#branchScreen').removeClass('d-none').hide().fadeIn(400);
             } 
-            else if(role === 'manager' || role === 'staff') {
+            else if (role === 'manager' || role === 'staff') {
                 renderBranches();
-                $('#branchScreen h4').text("Select Branch Location");
+                $('#branchScreen h4').text("Select Branch");
                 $('#branchScreen').removeClass('d-none').hide().fadeIn(400);
-            }
-            else {
-                // HQ Roles
-                localStorage.setItem('activeBranch', "Headquarters"); 
+            } 
+            else if (role === 'procurement' || role === 'content') {
+                // Skip the branch screen entirely for HQ roles
+                localStorage.setItem('activeBranch', "Holon Main Office");
+                $('#headerBranch').text("Holon Main Office"); 
+                
+                applyRolePermissions();
                 $('#dashboardScreen').removeClass('d-none').hide().fadeIn(400);
             }
         });
@@ -184,14 +231,16 @@ $(document).ready(function() {
             $('#headerBranch').text(locationName);
             
             $('#branchScreen').addClass('d-none');
+            
+            // *** THE FIX: Check permissions before showing the Dashboard ***
+            applyRolePermissions(); 
+            
             $('#dashboardScreen').removeClass('d-none').hide().fadeIn(400);
         });
     }
 
     // --- B. INVENTORY PAGE LOGIC ---
     if ($('#inventoryContainer').length > 0) {
-        let savedBranch = localStorage.getItem('activeBranch');
-        if(savedBranch) $('h4.fw-bold').text(savedBranch);
         renderInventory(); 
         
         $(document).on("input", ".input-stock", function() {
@@ -677,4 +726,32 @@ $(document).ready(function() {
             return `${year}-W${weekNo.toString().padStart(2, '0')}`;
         }
     }
+
+    // ==========================================
+    // 5. ROLE PERMISSIONS
+    // ==========================================
+    function applyRolePermissions() {
+        let role = localStorage.getItem('userRole');
+        
+        // 1. Strip away Bootstrap's hidden class entirely so jQuery can take full control
+        $('#moduleInventory, #moduleScheduling, #moduleManpower').removeClass('d-none');
+        
+        // 2. Force hide EVERYTHING first using strict jQuery
+        $('#moduleInventory').hide();
+        $('#moduleScheduling').hide();
+        $('#moduleManpower').hide();
+        
+        // 3. Reveal exactly what they need based on your rules
+        if (role === 'manager' || role === 'regional') {
+            $('#moduleInventory').show();
+            $('#moduleManpower').show();
+        } 
+        else if (role === 'procurement' || role === 'staff') {
+            $('#moduleInventory').show();
+        } 
+        else if (role === 'content') {
+            $('#moduleScheduling').show();
+        }
+    }
+
 }); // END OF DOCUMENT READY
